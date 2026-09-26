@@ -5,7 +5,7 @@ export type Coord = { lat: number; lon: number };
 
 export type Weather = {
   cityName: string;
-  Temperature: string;
+  Temperature: number;
   high: number;
   low: number;
   Status: string;
@@ -14,7 +14,6 @@ export type Weather = {
   feelsLike: number;
   coord?: Coord;
 };
-
 export type ForecastItem = {
   date: string;
   weekday: string;
@@ -75,7 +74,7 @@ export async function getWeatherByCity(cityName: string): Promise<Weather> {
 
     return {
       cityName: data.name,
-      Temperature: `${Math.round(data.main.temp)}°C`,
+      Temperature: Math.round(data.main.temp),
       high: Math.round(data.main.temp_max),
       low: Math.round(data.main.temp_min),
       Status: desc,
@@ -96,7 +95,7 @@ const forecastApi = axios.create({
 
 export async function getTwoWeeksForecast(
   lat: number,
-  lon: number
+  lon: number,
 ): Promise<ForecastItem[]> {
   try {
     const { data } = await forecastApi.get<{
@@ -165,7 +164,7 @@ const archiveApi = axios.create({
 
 export async function getMonthlyWeather(
   lat: number,
-  lon: number
+  lon: number,
 ): Promise<MonthlyPoint[]> {
   try {
     const { data } = await archiveApi.get<{

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, Container, Typography } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import WeatherHero from "../components/weather/WeatherHero";
 import WeatherForecast from "../components/weather/WeatherForecast";
 import AppNavbar from "../components/navigation/AppNavbar";
-import Footer from "../components/layout/Footer";
-import Toast from "../components/common/Toast";
+import AppFooter from "../components/layout/Footer";
+import AppToast from "../components/common/Toast";
+import AppLoading from "../components/common/AppLoading";
 
 import {
   getWeatherByCity,
@@ -50,7 +51,7 @@ type ToastState = {
   message: string;
 };
 
-const Dashboard: React.FC = () => {
+const DashboardPage: React.FC = () => {
   const { t, i18n } = useTranslation();
 
   const location = useLocation();
@@ -168,56 +169,72 @@ const Dashboard: React.FC = () => {
   /* Fetch weather data                                                         */
   /* -------------------------------------------------------------------------- */
 
-  const fetchAll = async (cityName: string): Promise<void> => {
-    try {
-      setLoading(true);
+  useEffect(() => {
+    let cancelled = false;
 
-      const weatherData: Weather = await getWeatherByCity(cityName);
+    const fetchAll = async (): Promise<void> => {
+      try {
+        setLoading(true);
 
-      setWeather(weatherData);
+        const weatherData = (await getWeatherByCity(city)) as Weather;
 
-      const lat = weatherData?.coord?.lat;
-      const lon = weatherData?.coord?.lon;
+        if (cancelled) {
+          return;
+        }
 
-      if (lat == null || lon == null) {
+        setWeather(weatherData);
+
+        const lat = weatherData?.coord?.lat;
+        const lon = weatherData?.coord?.lon;
+
+        if (lat == null || lon == null) {
+          setForecast([]);
+          setMonthlyData([]);
+          return;
+        }
+
+        const [forecastData, monthlyWeather] = await Promise.all([
+          getTwoWeeksForecast(lat, lon) as Promise<ForecastItem[]>,
+
+          getMonthlyWeather(lat, lon) as Promise<MonthlyPoint[]>,
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setForecast(forecastData);
+        setMonthlyData(monthlyWeather);
+      } catch (error: unknown) {
+        if (cancelled) {
+          return;
+        }
+
+        console.error(error);
+
+        const errorMessage =
+          typeof error === "object" && error !== null && "message" in error
+            ? String(error.message)
+            : t("errors.cityNotFound");
+
+        setWeather(null);
         setForecast([]);
         setMonthlyData([]);
-        return;
+
+        showToast(errorMessage);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
+    };
 
-      const [forecastData, monthlyWeather] = await Promise.all([
-        getTwoWeeksForecast(lat, lon) as Promise<ForecastItem[]>,
+    fetchAll();
 
-        getMonthlyWeather(lat, lon) as Promise<MonthlyPoint[]>,
-      ]);
-
-      setForecast(forecastData);
-      setMonthlyData(monthlyWeather);
-    } catch (error: unknown) {
-      console.error(error);
-
-      const errorMessage =
-        typeof error === "object" && error !== null && "message" in error
-          ? String(error.message)
-          : t("errors.cityNotFound");
-
-      setWeather(null);
-      setForecast([]);
-      setMonthlyData([]);
-
-      showToast(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* -------------------------------------------------------------------------- */
-  /* Initial / city change                                                      */
-  /* -------------------------------------------------------------------------- */
-
-  useEffect(() => {
-    fetchAll(city);
-  }, [city]);
+    return () => {
+      cancelled = true;
+    };
+  }, [city, t]);
 
   return (
     <Box
@@ -348,13 +365,17 @@ const Dashboard: React.FC = () => {
       />
 
       {/* -------------------------------------------------------------------- */}
-      {/* Toast                                                                */}
+      {/* Toast                                                                  */}
       {/* -------------------------------------------------------------------- */}
 
-      <Toast open={toast.open} message={toast.message} onClose={closeToast} />
+      <AppToast
+        open={toast.open}
+        message={toast.message}
+        onClose={closeToast}
+      />
 
       {/* -------------------------------------------------------------------- */}
-      {/* Main content                                                         */}
+      {/* Main content                                                           */}
       {/* -------------------------------------------------------------------- */}
 
       <Box
@@ -363,105 +384,55 @@ const Dashboard: React.FC = () => {
           zIndex: 1,
         }}
       >
-        {loading ? (
-          <Box
-            sx={{
-              minHeight: "100vh",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              px: 2,
-            }}
-          >
-            <Box
-              sx={{
-                width: {
-                  xs: "calc(100vw - 32px)",
-                  sm: 420,
-                },
-                maxWidth: 420,
-                p: {
-                  xs: 3,
-                  sm: 4,
-                },
-                borderRadius: 4,
+        {/* Navbar همیشه روی صفحه باقی می‌ماند */}
+        <AppNavbar setCity={setCity} />
 
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
+        <Container
+          maxWidth="lg"
+          sx={{
+            position: "relative",
+            zIndex: 1,
 
-                background: "rgba(255,255,255,0.06)",
+            pt: {
+              xs: 1,
+              sm: 2,
+            },
 
-                border: "1px solid rgba(255,255,255,0.10)",
+            pb: {
+              xs: 3,
+              sm: 5,
+            },
+          }}
+        >
+          {weather && (
+            <WeatherHero
+              cityName={weather.cityName}
+              day={clock.day}
+              date={clock.date}
+              hour={clock.hour}
+              Temperature={weather.Temperature}
+              high={weather.high}
+              low={weather.low}
+              Status={weather.Status}
+              img={weather.img}
+              feels={weather.feelsLike}
+              monthlyData={monthlyData}
+            />
+          )}
 
-                backdropFilter: "blur(24px)",
+          <WeatherForecast forecast={forecast} />
+        </Container>
 
-                WebkitBackdropFilter: "blur(24px)",
+        <AppFooter />
 
-                boxShadow: "0 25px 80px rgba(0,0,0,0.18)",
-              }}
-            >
-              <CircularProgress size={34} thickness={3} />
+        {/* ------------------------------------------------------------------ */}
+        {/* Single global loading overlay                                      */}
+        {/* ------------------------------------------------------------------ */}
 
-              <Typography
-                sx={{
-                  fontWeight: 600,
-                  opacity: 0.8,
-                  textAlign: "center",
-                }}
-              >
-                {t("loading")}
-              </Typography>
-            </Box>
-          </Box>
-        ) : (
-          <>
-            <AppNavbar setCity={setCity} />
-
-            <Container
-              maxWidth="lg"
-              sx={{
-                position: "relative",
-                zIndex: 1,
-
-                pt: {
-                  xs: 1,
-                  sm: 2,
-                },
-
-                pb: {
-                  xs: 3,
-                  sm: 5,
-                },
-              }}
-            >
-              {weather && (
-                <WeatherHero
-                  cityName={weather.cityName}
-                  day={clock.day}
-                  date={clock.date}
-                  hour={clock.hour}
-                  Temperature={weather.Temperature}
-                  high={weather.high}
-                  low={weather.low}
-                  Status={weather.Status}
-                  img={weather.img}
-                  feels={weather.feelsLike}
-                  monthlyData={monthlyData}
-                />
-              )}
-
-              <WeatherForecast forecast={forecast} />
-            </Container>
-
-            <Footer />
-          </>
-        )}
+        {loading && <AppLoading fullscreen={false} overlay />}
       </Box>
     </Box>
   );
 };
 
-export default Dashboard;
+export default DashboardPage;
