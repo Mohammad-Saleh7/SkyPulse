@@ -5,28 +5,52 @@ const theme = createTheme({
     light: {
       palette: {
         mode: "light",
-        primary: { main: "#007FFF" },
+
+        primary: {
+          main: "#0878C9",
+        },
+
+        secondary: {
+          main: "#39B8C6",
+        },
+
         background: {
-          default: "#f4f6f8",
-          lightPaper: "#e1e9ee",
+          // صفحه دیگر سفید خالص نیست
+          default: "#E8F0F5",
+
+          // برای سطوح و کارت‌های روشن
+          lightPaper: "#DCE8EF",
+
+          // در صورت استفاده توسط MUI
+          paper: "#F4F8FA",
         },
+
         navbar: {
-          default: "#f3fafe",
-          dNav: "#f3fafe",
+          default: "#E7F0F5",
+          dNav: "#E7F0F5",
         },
+
         text: {
-          primary: "#003464",
+          // خوانایی بالا، ولی نه مشکی
+          primary: "#17324A",
+
+          // متن‌های ثانویه
+          secondary: "#557084",
         },
+
+        divider: "rgba(23, 50, 74, 0.10)",
       },
     },
 
     dark: {
       palette: {
         mode: "dark",
+
         background: {
           default: "#151d32",
           darkPaper: "#292f45",
         },
+
         navbar: {
           default: "#151d32",
           dNav: "#151d32",
