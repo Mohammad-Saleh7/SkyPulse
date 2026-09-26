@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from "react";
-import WeatherHeader from "../components/WeatherHeader";
-import WeatherMain from "../components/WeatherMain";
-import NavComponent from "../components/NavComponent";
-import Footer from "../components/Footer";
+import { CircularProgress, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import WeatherHeader from "../components/weather/WeatherHeader";
+import WeatherMain from "../components/weather/WeatherMain";
+import NavComponent from "../components/navigation/NavComponent";
+import Footer from "../components/layout/Footer";
+import Toast from "../components/common/Toast";
 
 import {
   getWeatherByCity,
   getTwoWeeksForecast,
   getMonthlyWeather,
 } from "../utils/api";
-import { CircularProgress, Typography } from "@mui/material";
 
-type Coord = { lat: number; lon: number };
+type Coord = {
+  lat: number;
+  lon: number;
+};
 
 type Weather = {
   cityName: string;
@@ -39,14 +45,25 @@ type MonthlyPoint = {
   avgTemp?: number;
 };
 
+type ToastState = {
+  open: boolean;
+  message: string;
+};
+
 const Dashboard: React.FC = () => {
   const { t, i18n } = useTranslation();
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [weather, setWeather] = useState<Weather | null>(null);
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyPoint[]>([]);
+
   const [city, setCity] = useState<string>("Tehran");
+
   const [loading, setLoading] = useState<boolean>(true);
+
   const [clock, setClock] = useState<{
     day: string;
     date: string;
@@ -57,26 +74,78 @@ const Dashboard: React.FC = () => {
     hour: "",
   });
 
+  const [toast, setToast] = useState<ToastState>({
+    open: false,
+    message: "",
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /* Toast                                                                      */
+  /* -------------------------------------------------------------------------- */
+
+  const showToast = (message: string) => {
+    setToast({
+      open: true,
+      message,
+    });
+  };
+
+  const closeToast = () => {
+    setToast((prev) => ({
+      ...prev,
+      open: false,
+    }));
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /* Login welcome toast                                                        */
+  /* -------------------------------------------------------------------------- */
+
   useEffect(() => {
-    if (weather?.tzOffsetSec == null) return;
+    const message = location.state?.toast?.message;
 
-    const L = i18n.language === "fa" ? "fa-IR" : "en-US";
+    if (!message) {
+      return;
+    }
 
-    const tick = () => {
+    showToast(message);
+
+    navigate(location.pathname, {
+      replace: true,
+      state: null,
+    });
+  }, [location, navigate]);
+
+  /* -------------------------------------------------------------------------- */
+  /* City clock                                                                 */
+  /* -------------------------------------------------------------------------- */
+
+  useEffect(() => {
+    if (weather?.tzOffsetSec == null) {
+      return;
+    }
+
+    const locale = i18n.language === "fa" ? "fa-IR" : "en-US";
+
+    const updateClock = () => {
       const utcNowMs = Date.now();
+
       const cityNow = new Date(utcNowMs + weather.tzOffsetSec * 1000);
+
       setClock({
-        day: cityNow.toLocaleDateString(L, {
+        day: cityNow.toLocaleDateString(locale, {
           weekday: "long",
           timeZone: "UTC",
         }),
-        date: cityNow.toLocaleDateString(L, {
+
+        date: cityNow.toLocaleDateString(locale, {
           month: "short",
           day: "2-digit",
           year: "numeric",
           timeZone: "UTC",
         }),
-        hour: cityNow.toLocaleTimeString(L, {
+
+        hour: cityNow.toLocaleTimeString(locale, {
           hour: "numeric",
           minute: "2-digit",
           timeZone: "UTC",
@@ -84,72 +153,123 @@ const Dashboard: React.FC = () => {
       });
     };
 
-    tick();
-    const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
+    updateClock();
+
+    const intervalId = window.setInterval(updateClock, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [weather?.tzOffsetSec, i18n.language]);
+
+  /* -------------------------------------------------------------------------- */
+  /* Fetch weather data                                                         */
+  /* -------------------------------------------------------------------------- */
 
   const fetchAll = async (cityName: string) => {
     try {
-      const w: Weather = await getWeatherByCity(cityName);
-      setWeather(w);
+      setLoading(true);
 
-      const lat = w?.coord?.lat;
-      const lon = w?.coord?.lon;
+      const weatherData: Weather = await getWeatherByCity(cityName);
 
-      if (lat != null && lon != null) {
-        const [f, m] = await Promise.all([
-          getTwoWeeksForecast(lat, lon) as Promise<ForecastItem[]>,
-          getMonthlyWeather(lat, lon) as Promise<MonthlyPoint[]>,
-        ]);
-        setForecast(f);
-        setMonthlyData(m);
-      } else {
+      setWeather(weatherData);
+
+      const lat = weatherData?.coord?.lat;
+      const lon = weatherData?.coord?.lon;
+
+      if (lat == null || lon == null) {
         setForecast([]);
         setMonthlyData([]);
+        return;
       }
-    } catch (err: unknown) {
-      console.error(err);
-      const message =
-        typeof err === "object" && err && "message" in err ? err.message : null;
-      alert((message as string) || t("errors.cityNotFound"));
+
+      const [forecastData, monthlyWeather] = await Promise.all([
+        getTwoWeeksForecast(lat, lon) as Promise<ForecastItem[]>,
+
+        getMonthlyWeather(lat, lon) as Promise<MonthlyPoint[]>,
+      ]);
+
+      setForecast(forecastData);
+      setMonthlyData(monthlyWeather);
+    } catch (error: unknown) {
+      console.error(error);
+
+      const errorMessage =
+        typeof error === "object" && error !== null && "message" in error
+          ? String(error.message)
+          : t("errors.cityNotFound");
+
+      setWeather(null);
       setForecast([]);
       setMonthlyData([]);
+
+      showToast(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
+
+  /* -------------------------------------------------------------------------- */
+  /* Initial / city change                                                      */
+  /* -------------------------------------------------------------------------- */
 
   useEffect(() => {
     fetchAll(city);
   }, [city]);
 
-  useEffect(() => {
-    const time = setTimeout(() => {}, 2000);
-    setLoading(false);
-    return () => clearTimeout(time);
-  }, []);
-
   return (
-    <div>
+    <>
+      {/* -------------------------------------------------------------------- */}
+      {/* Toast                                                                */}
+      {/* -------------------------------------------------------------------- */}
+
+      <Toast open={toast.open} message={toast.message} onClose={closeToast} />
+
+      {/* -------------------------------------------------------------------- */}
+      {/* Loading                                                              */}
+      {/* -------------------------------------------------------------------- */}
+
       {loading ? (
         <Typography
           variant="h3"
-          component={"h3"}
+          component="h3"
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "100vh",
+
+            minHeight: "100vh",
+
             gap: 2,
-            px: { xs: 2, sm: 3 },
-            fontSize: { xs: "1.6rem", sm: "2rem", md: "2.5rem" },
+
+            px: {
+              xs: 2,
+              sm: 3,
+            },
+
+            fontSize: {
+              xs: "1.6rem",
+              sm: "2rem",
+              md: "2.5rem",
+            },
           }}
         >
           {t("loading")}
+
           <CircularProgress size={28} />
         </Typography>
       ) : (
         <>
+          {/* ---------------------------------------------------------------- */}
+          {/* Navigation                                                       */}
+          {/* ---------------------------------------------------------------- */}
+
           <NavComponent setCity={setCity} />
+
+          {/* ---------------------------------------------------------------- */}
+          {/* Weather Header                                                   */}
+          {/* ---------------------------------------------------------------- */}
+
           {weather && (
             <WeatherHeader
               cityName={weather.cityName}
@@ -165,11 +285,21 @@ const Dashboard: React.FC = () => {
               monthlyData={monthlyData}
             />
           )}
+
+          {/* ---------------------------------------------------------------- */}
+          {/* Weather Main                                                     */}
+          {/* ---------------------------------------------------------------- */}
+
           <WeatherMain forecast={forecast} />
+
+          {/* ---------------------------------------------------------------- */}
+          {/* Footer                                                           */}
+          {/* ---------------------------------------------------------------- */}
+
           <Footer />
         </>
       )}
-    </div>
+    </>
   );
 };
 

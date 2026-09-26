@@ -13,7 +13,7 @@ import {
   type Theme,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import ModeToggle from "./Modetoggle";
+import ModeToggle from "../Modetoggle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useTranslation } from "react-i18next";
