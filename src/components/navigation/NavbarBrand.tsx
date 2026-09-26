@@ -54,8 +54,8 @@ const NavbarBrand: React.FC = () => {
       >
         <Box
           component="img"
-          src="/nav.png"
-          alt="Weather App"
+          src="/nav-2.jpg"
+          alt="SkyPulse"
           sx={{
             width: {
               xs: 38,

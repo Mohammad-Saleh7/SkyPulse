@@ -1,28 +1,75 @@
-# WeatherTask-TS
+# 🌤️ SkyPulse
 
-This project is a Weather Dashboard Application built with React and Vite.The user interface is designed using Material UI and allows you to log in with your name, view weather information, switch the app language between Persian and English, and toggle between light and dark themes.
+A modern and responsive weather dashboard built with **React, TypeScript, Material UI, and Vite**.
 
-Features:
-1-Login and logout pages
-2-Fetching weather data from the OpenWeather API and Open-Meteo API using Axios
-3-Bilingual support (Persian and English) using i18n
-4-Light and dark theme toggle
-5-Responsive design with Material UI
+SkyPulse provides real-time weather information, a 14-day forecast, monthly temperature statistics, city search, localization, and dark/light mode.
 
-Technologies and Libraries :
-1-Type Script
-2-React (Vite)
-3-Material UI
-4-Axios
-5-React Router DOM
-6-React Hook Form
-7-React i18next
-8-Open-Meteo API
-9-Open-Weather Api
+## ✨ Features
 
-How to Run:
-1-npm install
-2-npm run dev
+- 🌡️ Current weather information
+- 📅 14-day weather forecast
+- 📊 Monthly temperature chart
+- 🔎 City search
+- 🌙 Dark / Light mode
+- 🌍 English & Persian support
+- ↔️ RTL support
+- 🕐 Local city time
+- 📱 Fully responsive design
+- ✨ Modern glassmorphism UI
+- 🌦️ Animated weather artwork
 
-Developed by Mohammad Saleh Abbasi  
-for Nadine Soft – Front-End Internship Task
+## 🛠️ Tech Stack
+
+- React
+- TypeScript
+- Vite
+- Material UI
+- React Router
+- Axios
+- i18next
+
+## 🌐 APIs
+
+- **OpenWeather API** — Current weather data
+- **Open-Meteo API** — Forecast & historical weather data
+
+## 🚀 Getting Started
+
+### Install
+
+```bash
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+VITE_WEATHER_KEY=your_openweather_api_key
+```
+
+### Run
+
+```bash
+npm run dev
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+## 🌍 Live Demo
+
+[SkyPulse](https://your-project.netlify.app)
+
+## 👨‍💻 Author
+
+**Mohammad Saleh Abbasi**
+
+- GitHub: [Mohammad-Saleh7](https://github.com/Mohammad-Saleh7)
+- LinkedIn: [Mohammad Saleh Abbasi](https://www.linkedin.com/in/mohammad-saleh-abbasi)
+
+---

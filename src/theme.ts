@@ -15,13 +15,8 @@ const theme = createTheme({
         },
 
         background: {
-          // صفحه دیگر سفید خالص نیست
           default: "#E8F0F5",
-
-          // برای سطوح و کارت‌های روشن
           lightPaper: "#DCE8EF",
-
-          // در صورت استفاده توسط MUI
           paper: "#F4F8FA",
         },
 
@@ -31,10 +26,7 @@ const theme = createTheme({
         },
 
         text: {
-          // خوانایی بالا، ولی نه مشکی
           primary: "#17324A",
-
-          // متن‌های ثانویه
           secondary: "#557084",
         },
 
@@ -58,6 +50,8 @@ const theme = createTheme({
       },
     },
   },
+
+  defaultColorScheme: "dark",
 });
 
 export default theme;

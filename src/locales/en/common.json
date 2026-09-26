@@ -1,6 +1,6 @@
 {
   "loading": "loading...",
-  "app": { "title": "Weather Dashboard" },
+  "app": { "title": "SkyPulse" },
   "header": {
     "language": "Language",
     "mode": "Mode",

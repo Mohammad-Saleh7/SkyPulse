@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography, type Theme } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
+import WeatherArtwork from "./WeatherArtwork";
 
 import WeatherTemperature from "./WeatherTemperature";
 import WeatherStats from "./WeatherStats";
@@ -283,52 +284,7 @@ const WeatherCurrent: React.FC<WeatherCurrentProps> = ({
           </Box>
         </Box>
 
-        <Box
-          sx={(theme: Theme) => ({
-            width: {
-              xs: 80,
-              sm: 100,
-            },
-
-            height: {
-              xs: 80,
-              sm: 100,
-            },
-
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-
-            borderRadius: "50%",
-
-            background:
-              theme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.06)"
-                : "rgba(255,255,255,0.55)",
-
-            border:
-              theme.palette.mode === "dark"
-                ? "1px solid rgba(255,255,255,0.08)"
-                : "1px solid rgba(23,50,74,0.07)",
-
-            boxShadow:
-              theme.palette.mode === "dark"
-                ? "0 0 35px rgba(80,190,255,0.10)"
-                : "0 8px 30px rgba(35,120,170,0.12)",
-
-            flexShrink: 0,
-          })}
-        >
-          <img
-            src={img}
-            alt={Status || "weather"}
-            style={{
-              width: "78%",
-              height: "78%",
-              objectFit: "contain",
-            }}
-          />
-        </Box>
+        <WeatherArtwork status={Status} src={img} size={100} />
       </Box>
 
       <WeatherTemperature

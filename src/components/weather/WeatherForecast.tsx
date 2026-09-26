@@ -2,13 +2,8 @@ import React from "react";
 import { Box, Stack, Typography, type Theme } from "@mui/material";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import { useTranslation } from "react-i18next";
-
-type ForecastItem = {
-  date?: string;
-  weekday: string;
-  icon?: React.ReactNode;
-  maxTemp: number;
-};
+import WeatherArtwork from "./WeatherArtwork";
+import type { ForecastItem } from "./weather.types";
 
 type WeatherForecastProps = {
   forecast?: ForecastItem[];
@@ -379,41 +374,26 @@ const WeatherForecast: React.FC<WeatherForecastProps> = ({ forecast = [] }) => {
                         zIndex: 1,
 
                         width: {
-                          xs: 58,
-                          sm: 64,
+                          xs: 64,
+                          sm: 72,
                         },
 
                         height: {
-                          xs: 58,
-                          sm: 64,
+                          xs: 64,
+                          sm: 72,
                         },
 
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-
-                        borderRadius: "50%",
-
-                        background: "rgba(255,255,255,0.055)",
-
-                        border: "1px solid rgba(255,255,255,0.06)",
-
-                        fontSize: {
-                          xs: 31,
-                          sm: 35,
-                        },
-
-                        lineHeight: 1,
-
-                        transition: "transform 0.25s ease",
-
-                        ".MuiBox-root:hover &": {
-                          transform: "scale(1.06)",
-                        },
                       }}
                       title={dayLabel}
                     >
-                      {item.icon ?? "❔"}
+                      <WeatherArtwork
+                        icon={item.icon}
+                        status={item.weather}
+                        size={64}
+                      />
                     </Box>
 
                     {/* Temperature */}

@@ -2,6 +2,8 @@ import React from "react";
 import { Box, Link, Stack, Typography } from "@mui/material";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import { useTranslation } from "react-i18next";
 
 const Footer: React.FC = () => {
@@ -18,6 +20,31 @@ const Footer: React.FC = () => {
     day: "2-digit",
     month: "long",
     year: "numeric",
+  });
+
+  const linkSx = (theme: any) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: 0.75,
+
+    color:
+      theme.palette.mode === "dark"
+        ? "rgba(255,255,255,0.72)"
+        : theme.palette.text.primary,
+
+    fontSize: {
+      xs: "0.72rem",
+      sm: "0.78rem",
+    },
+
+    textDecoration: "none",
+
+    transition: "color 0.2s ease, transform 0.2s ease",
+
+    "&:hover": {
+      color: theme.palette.mode === "dark" ? "#4CDFE8" : "#007FFF",
+      transform: "translateY(-1px)",
+    },
   });
 
   return (
@@ -62,10 +89,12 @@ const Footer: React.FC = () => {
           left: "10%",
           bottom: -100,
           borderRadius: "50%",
+
           background:
             theme.palette.mode === "dark"
               ? "rgba(70,190,255,0.07)"
               : "rgba(60,170,230,0.06)",
+
           filter: "blur(45px)",
           pointerEvents: "none",
         },
@@ -78,10 +107,12 @@ const Footer: React.FC = () => {
           right: "8%",
           top: -90,
           borderRadius: "50%",
+
           background:
             theme.palette.mode === "dark"
               ? "rgba(76,223,232,0.05)"
               : "rgba(76,180,220,0.05)",
+
           filter: "blur(40px)",
           pointerEvents: "none",
         },
@@ -121,7 +152,6 @@ const Footer: React.FC = () => {
             },
 
             fontWeight: 500,
-
             opacity: 0.58,
 
             color:
@@ -152,29 +182,7 @@ const Footer: React.FC = () => {
           <Link
             href="mailto:abbasisaleh895@gmail.com"
             underline="none"
-            sx={(theme) => ({
-              display: "flex",
-              alignItems: "center",
-              gap: 0.75,
-
-              color:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.72)"
-                  : theme.palette.text.primary,
-
-              fontSize: {
-                xs: "0.72rem",
-                sm: "0.78rem",
-              },
-
-              transition: "color 0.2s ease, transform 0.2s ease",
-
-              "&:hover": {
-                color: theme.palette.mode === "dark" ? "#4CDFE8" : "#007FFF",
-
-                transform: "translateY(-1px)",
-              },
-            })}
+            sx={linkSx}
           >
             <MailOutlineIcon
               sx={{
@@ -186,6 +194,44 @@ const Footer: React.FC = () => {
             />
 
             {t("footer.contact")}
+          </Link>
+
+          {/* GitHub */}
+          <Link
+            href="https://github.com/Mohammad-Saleh7"
+            target="_blank"
+            rel="noopener noreferrer"
+            underline="none"
+            sx={linkSx}
+          >
+            <GitHubIcon
+              sx={{
+                fontSize: {
+                  xs: 16,
+                  sm: 18,
+                },
+              }}
+            />
+            GitHub
+          </Link>
+
+          {/* LinkedIn */}
+          <Link
+            href="https://www.linkedin.com/in/mohammad-saleh-abbasi"
+            target="_blank"
+            rel="noopener noreferrer"
+            underline="none"
+            sx={linkSx}
+          >
+            <LinkedInIcon
+              sx={{
+                fontSize: {
+                  xs: 16,
+                  sm: 18,
+                },
+              }}
+            />
+            LinkedIn
           </Link>
 
           {/* Date */}
@@ -212,6 +258,7 @@ const Footer: React.FC = () => {
                   xs: 16,
                   sm: 18,
                 },
+
                 opacity: 0.8,
               }}
             />

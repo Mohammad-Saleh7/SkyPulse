@@ -2,6 +2,14 @@ import type { MonthlyPoint } from "../../utils/api";
 
 export type { MonthlyPoint };
 
+export type ForecastItem = {
+  date: string;
+  weekday: string;
+  maxTemp: number;
+  weather: string;
+  icon: string;
+};
+
 export type WeatherHeroProps = {
   cityName: string;
   day: string;
