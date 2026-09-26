@@ -1,8 +1,6 @@
-export type MonthlyPoint = {
-  month?: string;
-  label?: string;
-  avgTemp?: number;
-};
+import type { MonthlyPoint } from "../../utils/api";
+
+export type { MonthlyPoint };
 
 export type WeatherHeroProps = {
   cityName: string;
